@@ -11,7 +11,7 @@
  * Copyright (C) 2019-2022 Lightbend Inc. <https://www.lightbend.com>
  */
 
-package com.github.pjfanning.pekko.serialization.jackson215
+package com.github.pjfanning.pekko.serialization.jackson216
 
 /**
  * Complete module with support for all custom serializers.

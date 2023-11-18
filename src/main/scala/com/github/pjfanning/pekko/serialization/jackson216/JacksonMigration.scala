@@ -11,7 +11,7 @@
  * Copyright (C) 2016-2022 Lightbend Inc. <https://www.lightbend.com>
  */
 
-package com.github.pjfanning.pekko.serialization.jackson215
+package com.github.pjfanning.pekko.serialization.jackson216
 
 import com.fasterxml.jackson.databind.JsonNode
 

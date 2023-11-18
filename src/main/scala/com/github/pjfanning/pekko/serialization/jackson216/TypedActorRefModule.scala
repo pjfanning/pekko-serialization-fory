@@ -11,7 +11,7 @@
  * Copyright (C) 2019-2022 Lightbend Inc. <https://www.lightbend.com>
  */
 
-package com.github.pjfanning.pekko.serialization.jackson215
+package com.github.pjfanning.pekko.serialization.jackson216
 
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer
 import org.apache.pekko
-import org.apache.pekko.serialization.jackson215.ActorSystemAccess
+import org.apache.pekko.serialization.jackson216.ActorSystemAccess
 import pekko.actor.typed.ActorRef
 import pekko.actor.typed.ActorRefResolver
 import pekko.actor.typed.scaladsl.adapter._
@@ -30,21 +30,21 @@ import pekko.annotation.InternalApi
 /**
  * INTERNAL API: Adds support for serializing and deserializing [[pekko.actor.typed.ActorRef]].
  */
-@InternalApi private[jackson215] trait TypedActorRefModule extends JacksonModule {
+@InternalApi private[jackson216] trait TypedActorRefModule extends JacksonModule {
   addSerializer(classOf[ActorRef[_]], () => TypedActorRefSerializer.instance, () => TypedActorRefDeserializer.instance)
 }
 
 /**
  * INTERNAL API
  */
-@InternalApi private[jackson215] object TypedActorRefSerializer {
+@InternalApi private[jackson216] object TypedActorRefSerializer {
   val instance: TypedActorRefSerializer = new TypedActorRefSerializer
 }
 
 /**
  * INTERNAL API
  */
-@InternalApi private[jackson215] class TypedActorRefSerializer
+@InternalApi private[jackson216] class TypedActorRefSerializer
     extends StdScalarSerializer[ActorRef[_]](classOf[ActorRef[_]])
     with ActorSystemAccess {
   override def serialize(value: ActorRef[_], jgen: JsonGenerator, provider: SerializerProvider): Unit = {
@@ -56,14 +56,14 @@ import pekko.annotation.InternalApi
 /**
  * INTERNAL API
  */
-@InternalApi private[jackson215] object TypedActorRefDeserializer {
+@InternalApi private[jackson216] object TypedActorRefDeserializer {
   val instance: TypedActorRefDeserializer = new TypedActorRefDeserializer
 }
 
 /**
  * INTERNAL API
  */
-@InternalApi private[jackson215] class TypedActorRefDeserializer
+@InternalApi private[jackson216] class TypedActorRefDeserializer
     extends StdScalarDeserializer[ActorRef[_]](classOf[ActorRef[_]])
     with ActorSystemAccess {
 

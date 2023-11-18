@@ -11,7 +11,7 @@
  * Copyright (C) 2019-2022 Lightbend Inc. <https://www.lightbend.com>
  */
 
-package com.github.pjfanning.pekko.serialization.jackson215
+package com.github.pjfanning.pekko.serialization.jackson216
 
 import com.fasterxml.jackson.core.Version
 import com.fasterxml.jackson.core.util.VersionUtil
@@ -34,11 +34,11 @@ import pekko.annotation.InternalApi
 /**
  * INTERNAL API
  */
-@InternalApi private[jackson215] object JacksonModule {
+@InternalApi private[jackson216] object JacksonModule {
 
   lazy val version: Version = {
     val groupId = "org.apache.pekko"
-    val artifactId = "serialization-jackson215"
+    val artifactId = "serialization-jackson216"
     val version = pekko.Version.current
     VersionUtil.parseVersion(version, groupId, artifactId)
   }
@@ -75,14 +75,14 @@ import pekko.annotation.InternalApi
 /**
  * INTERNAL API
  */
-@InternalApi private[jackson215] object VersionExtractor {
+@InternalApi private[jackson216] object VersionExtractor {
   def unapply(v: Version) = Some((v.getMajorVersion, v.getMinorVersion))
 }
 
 /**
  * INTERNAL API
  */
-@InternalApi private[jackson215] trait JacksonModule extends Module {
+@InternalApi private[jackson216] trait JacksonModule extends Module {
   import JacksonModule._
 
   private val initializers = Seq.newBuilder[SetupContext => Unit]

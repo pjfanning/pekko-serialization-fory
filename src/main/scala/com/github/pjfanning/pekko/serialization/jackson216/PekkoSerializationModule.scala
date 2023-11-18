@@ -11,13 +11,13 @@
  * Copyright (C) 2019-2022 Lightbend Inc. <https://www.lightbend.com>
  */
 
-package com.github.pjfanning.pekko.serialization.jackson215
+package com.github.pjfanning.pekko.serialization.jackson216
 
 import com.fasterxml.jackson.core.{JsonGenerator, JsonParser, ObjectCodec}
 import com.fasterxml.jackson.databind.{DeserializationContext, JsonNode, SerializerProvider}
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer
-import org.apache.pekko.serialization.jackson215.ActorSystemAccess
+import org.apache.pekko.serialization.jackson216.ActorSystemAccess
 import org.apache.pekko.serialization.{SerializationExtension, Serializer, Serializers}
 
 final class PekkoSerializationSerializer extends StdScalarSerializer[AnyRef](classOf[AnyRef]) with ActorSystemAccess {

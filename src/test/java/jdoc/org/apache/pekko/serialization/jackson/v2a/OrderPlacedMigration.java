@@ -13,7 +13,7 @@
 
 package jdoc.org.apache.pekko.serialization.jackson.v2a;
 
-import com.github.pjfanning.pekko.serialization.jackson215.JacksonMigration;
+import com.github.pjfanning.pekko.serialization.jackson216.JacksonMigration;
 import com.fasterxml.jackson.databind.JsonNode;
 
 // #rename-class

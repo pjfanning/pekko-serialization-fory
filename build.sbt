@@ -1,15 +1,15 @@
 val scala12Version = "2.12.18"
-val scala13Version = "2.13.11"
-val scala3Version = "3.3.0"
+val scala13Version = "2.13.12"
+val scala3Version = "3.3.1"
 ThisBuild / scalaVersion := scala13Version
 ThisBuild / crossScalaVersions := Seq(scala12Version, scala13Version, scala3Version)
 
 val pekkoVersion = "1.0.1"
-val jacksonVersion = "2.15.3"
+val jacksonVersion = "2.16.0"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "pekko-serialization-jackson215",
+    name := "pekko-serialization-jackson216",
     organization := "com.github.pjfanning",
     libraryDependencies ++= Seq(
       "org.apache.pekko" %% "pekko-actor" % pekkoVersion,
@@ -29,9 +29,9 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % "1.2.12" % Test
     ),
     javacOptions += "-parameters",
-    licenses += ("Apache-2.0", new URL("https://github.com/pjfanning/pekko-serialization-jackson215/blob/main/LICENSE")),
+    licenses += ("Apache-2.0", new URL("https://github.com/pjfanning/pekko-serialization-jackson216/blob/main/LICENSE")),
     startYear := Some(2023),
-    homepage := Some(url("https://github.com/pjfanning/pekko-serialization-jackson215")),
+    homepage := Some(url("https://github.com/pjfanning/pekko-serialization-jackson216")),
     developers := Developer(
       "pekko-contributors",
       "Apache Pekko Contributors",
@@ -40,8 +40,8 @@ lazy val root = (project in file("."))
       Developer("pjfanning", "PJ Fanning", "", url("https://github.com/pjfanning")) :: Nil,
     scmInfo := Some(
       ScmInfo(
-        browseUrl = url("https://github.com/pjfanning/pekko-serialization-jackson215.git"),
-        connection = "scm:git:git@github.com:pjfanning/pekko-serialization-jackson215.git"
+        browseUrl = url("https://github.com/pjfanning/pekko-serialization-jackson216.git"),
+        connection = "scm:git:git@github.com:pjfanning/pekko-serialization-jackson216.git"
       )
     )
   )
