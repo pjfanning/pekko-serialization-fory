@@ -13,5 +13,5 @@ If you want to use Jackson 2.16 with [Pekko HTTP](https://pekko.apache.org/docs/
 ## sbt
 
 ```
-libraryDependencies += "com.github.pjfanning" %% "pekko-serialization-jackson216" % "1.0.0"
+libraryDependencies += "com.github.pjfanning" %% "pekko-serialization-jackson216" % "1.0.1"
 ```
