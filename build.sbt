@@ -4,8 +4,8 @@ val scala3Version = "3.3.1"
 ThisBuild / scalaVersion := scala13Version
 ThisBuild / crossScalaVersions := Seq(scala12Version, scala13Version, scala3Version)
 
-val pekkoVersion = "1.0.1"
-val jacksonVersion = "2.16.0"
+val pekkoVersion = "1.0.2"
+val jacksonVersion = "2.16.1"
 
 lazy val root = (project in file("."))
   .settings(
@@ -26,7 +26,7 @@ lazy val root = (project in file("."))
       "org.scala-lang.modules" %% "scala-java8-compat" % "1.0.2",
       "org.apache.pekko" %% "pekko-testkit" % pekkoVersion % Test,
       "org.scalatest" %% "scalatest" % "3.2.17" % Test,
-      "ch.qos.logback" % "logback-classic" % "1.2.12" % Test
+      "ch.qos.logback" % "logback-classic" % "1.2.13" % Test
     ),
     javacOptions += "-parameters",
     licenses += ("Apache-2.0", new URL("https://github.com/pjfanning/pekko-serialization-jackson216/blob/main/LICENSE")),
