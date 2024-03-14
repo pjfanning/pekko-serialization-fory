@@ -19,42 +19,20 @@ import scala.annotation.nowarn
 import scala.collection.immutable
 import scala.collection.JavaConverters._
 import scala.compat.java8.OptionConverters._
-import scala.util.{ Failure, Success }
-import com.fasterxml.jackson.annotation.{ JsonAutoDetect, JsonCreator, PropertyAccessor }
-import com.fasterxml.jackson.core.{
-  JsonFactory,
-  JsonFactoryBuilder,
-  JsonGenerator,
-  JsonParser,
-  StreamReadConstraints,
-  StreamReadFeature,
-  StreamWriteConstraints,
-  StreamWriteFeature
-}
-import com.fasterxml.jackson.core.json.{ JsonReadFeature, JsonWriteFeature }
-import com.fasterxml.jackson.databind.{
-  DeserializationFeature,
-  MapperFeature,
-  Module,
-  ObjectMapper,
-  SerializationFeature
-}
+import scala.util.{Failure, Success}
+import com.fasterxml.jackson.annotation.{JsonAutoDetect, JsonCreator, PropertyAccessor}
+import com.fasterxml.jackson.core.{JsonFactory, JsonFactoryBuilder, JsonGenerator, JsonParser, StreamReadConstraints, StreamReadFeature, StreamWriteConstraints, StreamWriteFeature}
+import com.fasterxml.jackson.core.json.{JsonReadFeature, JsonWriteFeature}
+import com.fasterxml.jackson.core.util.{BufferRecycler, JsonRecyclerPools, RecyclerPool}
+import com.fasterxml.jackson.databind.{DeserializationFeature, MapperFeature, Module, ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule
 import com.typesafe.config.Config
 import org.apache.pekko
-import pekko.actor.{
-  ActorSystem,
-  ClassicActorSystemProvider,
-  DynamicAccess,
-  ExtendedActorSystem,
-  Extension,
-  ExtensionId,
-  ExtensionIdProvider
-}
+import pekko.actor.{ActorSystem, ClassicActorSystemProvider, DynamicAccess, ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
 import pekko.actor.setup.Setup
 import pekko.annotation.InternalStableApi
-import pekko.event.{ Logging, LoggingAdapter }
+import pekko.event.{Logging, LoggingAdapter}
 
 object JacksonObjectMapperProvider extends ExtensionId[JacksonObjectMapperProvider] with ExtensionIdProvider {
   override def get(system: ActorSystem): JacksonObjectMapperProvider = super.get(system)
@@ -107,6 +85,7 @@ object JacksonObjectMapperProvider extends ExtensionId[JacksonObjectMapperProvid
         new JsonFactoryBuilder()
           .streamReadConstraints(streamReadConstraints)
           .streamWriteConstraints(streamWriteConstraints)
+          .recyclerPool(getBufferRecyclerPool(config))
           .build()
     }
 
@@ -151,6 +130,18 @@ object JacksonObjectMapperProvider extends ExtensionId[JacksonObjectMapperProvid
     }
 
     jsonFactory
+  }
+
+  private def getBufferRecyclerPool(cfg: Config): RecyclerPool[BufferRecycler] = {
+    cfg.getString("buffer-recycler.pool-instance") match {
+      case "thread-local" => JsonRecyclerPools.threadLocalPool()
+      case "lock-free" => JsonRecyclerPools.newLockFreePool()
+      case "shared-lock-free" => JsonRecyclerPools.sharedLockFreePool()
+      case "concurrent-deque" => JsonRecyclerPools.newConcurrentDequePool()
+      case "shared-concurrent-deque" => JsonRecyclerPools.sharedConcurrentDequePool()
+      case "bounded" => JsonRecyclerPools.newBoundedPool(cfg.getInt("buffer-recycler.pool-size"))
+      case other => throw new IllegalArgumentException(s"Unknown recycler-pool: $other")
+    }
   }
 
   @nowarn("msg=deprecated")
