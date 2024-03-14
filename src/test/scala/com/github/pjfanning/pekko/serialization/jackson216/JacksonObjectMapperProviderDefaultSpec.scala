@@ -11,7 +11,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 class JacksonObjectMapperProviderDefaultSpec extends TestKit(
   ActorSystem(
     "JacksonObjectMapperProviderConfigSpec",
-    ConfigFactory.parseString(JacksonSerializerSpec.baseConfig("jackson-json")))
+    ConfigFactory.parseString(JacksonSerializerSpec.baseConfig("jackson-json"))))
   with AnyWordSpecLike
   with Matchers
   with BeforeAndAfterAll {
@@ -36,7 +36,7 @@ class JacksonObjectMapperProviderDefaultSpec extends TestKit(
     "pick up recycler pool config" in {
       val objectMapper = JacksonObjectMapperProvider(system).create("test", None)
       val recyclerPool = objectMapper.getFactory._getRecyclerPool()
-      recyclerPool.getClass.getSimpleName shouldEqual "ThreadLocalBufferRecycler"
+      recyclerPool.getClass.getSimpleName shouldEqual "ThreadLocalPool"
     }
   }
 
