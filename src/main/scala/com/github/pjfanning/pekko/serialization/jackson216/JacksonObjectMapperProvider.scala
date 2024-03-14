@@ -139,7 +139,7 @@ object JacksonObjectMapperProvider extends ExtensionId[JacksonObjectMapperProvid
       case "shared-lock-free" => JsonRecyclerPools.sharedLockFreePool()
       case "concurrent-deque" => JsonRecyclerPools.newConcurrentDequePool()
       case "shared-concurrent-deque" => JsonRecyclerPools.sharedConcurrentDequePool()
-      case "bounded" => JsonRecyclerPools.newBoundedPool(cfg.getInt("buffer-recycler.pool-size"))
+      case "bounded" => JsonRecyclerPools.newBoundedPool(cfg.getInt("buffer-recycler.bounded-pool-size"))
       case other => throw new IllegalArgumentException(s"Unknown recycler-pool: $other")
     }
   }

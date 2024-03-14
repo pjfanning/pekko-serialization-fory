@@ -1,5 +1,6 @@
 package com.github.pjfanning.pekko.serialization.jackson216
 
+import com.fasterxml.jackson.core.util.JsonRecyclerPools.BoundedPool
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.testkit.TestKit
@@ -22,6 +23,10 @@ class JacksonObjectMapperProviderSpec extends TestKit(
                                  |   write {
                                  |     max-nesting-depth = 800
                                  |   }
+                                 |   buffer-recycler {
+                                 |     pool-instance = "bounded"
+                                 |     bounded-pool-size = 1234
+                                 |   }
                                  | }""".stripMargin)
       .withFallback(ConfigFactory.parseString(JacksonSerializerSpec.baseConfig("jackson-json")))))
   with AnyWordSpecLike
@@ -35,7 +40,6 @@ class JacksonObjectMapperProviderSpec extends TestKit(
   "JacksonObjectMapperProvider" should {
     "pick up stream constraints" in {
       val objectMapper = JacksonObjectMapperProvider(system).create("test", None)
-      //objectMapper.getFactory._getRecyclerPool()
       val src = objectMapper.getFactory.streamReadConstraints()
       val swc = objectMapper.getFactory.streamWriteConstraints()
       src.getMaxNestingDepth shouldEqual 1001
@@ -45,6 +49,12 @@ class JacksonObjectMapperProviderSpec extends TestKit(
       src.getMaxDocumentLength shouldEqual 567890
 
       swc.getMaxNestingDepth shouldEqual 800
+    }
+    "pick up recycler pool config" in {
+      val objectMapper = JacksonObjectMapperProvider(system).create("test", None)
+      val recyclerPool = objectMapper.getFactory._getRecyclerPool()
+      recyclerPool.getClass.getSimpleName shouldEqual "BoundedPool"
+      recyclerPool.asInstanceOf[BoundedPool].capacity() shouldEqual 1234
     }
   }
 
