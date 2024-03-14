@@ -8,9 +8,9 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
-class JacksonObjectMapperProviderSpec extends TestKit(
+class JacksonObjectMapperProviderConfigSpec extends TestKit(
   ActorSystem(
-    "JacksonObjectMapperProviderSpec",
+    "JacksonObjectMapperProviderConfigSpec",
     ConfigFactory.parseString("""
                                  | pekko.serialization.jackson216 {
                                  |   read {

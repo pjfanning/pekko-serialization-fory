@@ -81,7 +81,7 @@ object JacksonObjectMapperProvider extends ExtensionId[JacksonObjectMapperProvid
         // instead of using JsonFactoryBuilder (new in Jackson 2.10.0).
         factory.setStreamReadConstraints(streamReadConstraints)
         factory.setStreamWriteConstraints(streamWriteConstraints)
-        factory.setRecyclerPool(getBufferRecyclerPool(config)ß)
+        factory.setRecyclerPool(getBufferRecyclerPool(config))
       case None =>
         new JsonFactoryBuilder()
           .streamReadConstraints(streamReadConstraints)
