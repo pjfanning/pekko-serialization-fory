@@ -4,7 +4,7 @@ Jackson 2.16 equivalent of [pekko-serialization-jackson](https://pekko.apache.or
 
 See also https://github.com/pjfanning/pekko-serialization-jackson215
 
-The main reason to use Jackson 2.16 is for its [StreamReadConstraint](https://www.javadoc.io/static/com.fasterxml.jackson.core/jackson-core/2.16.0/com/fasterxml/jackson/core/StreamReadConstraints.html) support. Users who want to override the default constraints should override the settings in the [config](https://github.com/lightbend/config), see [reference.conf](https://github.com/pjfanning/pekko-serialization-jackson216/blob/main/src/main/resources/reference.conf).
+The main reason to use Jackson 2.16 is for its [StreamReadConstraints](https://www.javadoc.io/static/com.fasterxml.jackson.core/jackson-core/2.16.0/com/fasterxml/jackson/core/StreamReadConstraints.html) support. Users who want to override the default constraints should override the settings in the [config](https://github.com/lightbend/config), see [reference.conf](https://github.com/pjfanning/pekko-serialization-jackson216/blob/main/src/main/resources/reference.conf).
 
 Config names for this library start with `pekko.serialization.jackson216` as opposed to `pekko.serialization.jackson`.
 
