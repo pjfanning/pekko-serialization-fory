@@ -32,21 +32,12 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
-//#marker-interface
-/**
- * Marker interface for messages, events and snapshots that are serialized with Jackson.
- */
-trait JSerializable
-
-final case class JMessage(name: String, nr: Int) extends JSerializable
-//#marker-interface
-
 object SerializationDocJacksonSpec {
   val config = """
     #//#serialization-bindings
     pekko.actor {
       serialization-bindings {
-        "com.myservice.JSerializable" = jackson-json
+        "com.myservice.MySerializable" = jackson-json
       }
     }
     #//#serialization-bindings
@@ -142,7 +133,7 @@ object SerializationDocJacksonSpec {
   object JPolymorphism {
 
     // #polymorphism
-    final case class Zoo(primaryAttraction: Animal) extends JSerializable
+    final case class Zoo(primaryAttraction: Animal) extends MySerializable
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes(
@@ -160,7 +151,7 @@ object SerializationDocJacksonSpec {
   object PolymorphismMixedClassObject {
 
     // #polymorphism-case-object
-    final case class Zoo(primaryAttraction: Animal) extends JSerializable
+    final case class Zoo(primaryAttraction: Animal) extends MySerializable
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes(
@@ -225,7 +216,7 @@ class SerializationDocJacksonSpec
       allow-java-serialization = off
       serialization-bindings {
         "${classOf[jdoc.org.apache.pekko.serialization.fory.MySerializable].getName}" = jackson-json
-        "${classOf[doc.org.apache.pekko.serialization.fory.JSerializable].getName}" = jackson-json
+        "${classOf[doc.org.apache.pekko.serialization.fory.MySerializable].getName}" = jackson-json
       }
     }
     """)))
