@@ -27,19 +27,14 @@ lazy val root = (project in file("."))
       "org.lz4" % "lz4-java" % "1.8.0",
       "org.scala-lang.modules" %% "scala-java8-compat" % "1.0.2",
       "org.apache.pekko" %% "pekko-testkit" % pekkoVersion % Test,
-      "org.scalatest" %% "scalatest" % "3.2.18" % Test,
-      "ch.qos.logback" % "logback-classic" % "1.2.13" % Test
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+      "ch.qos.logback" % "logback-classic" % "1.3.15" % Test
     ),
     javacOptions += "-parameters",
     licenses += ("Apache-2.0", new URL("https://github.com/pjfanning/pekko-serialization-fory/blob/main/LICENSE")),
-    startYear := Some(2023),
+    startYear := Some(2025),
     homepage := Some(url("https://github.com/pjfanning/pekko-serialization-fory")),
-    developers := Developer(
-      "pekko-contributors",
-      "Apache Pekko Contributors",
-      "dev@pekko.apache.org",
-      url("https://github.com/apache/incubator-pekko/graphs/contributors")) ::
-      Developer("pjfanning", "PJ Fanning", "", url("https://github.com/pjfanning")) :: Nil,
+    developers := Developer("pjfanning", "PJ Fanning", "", url("https://github.com/pjfanning")) :: Nil,
     scmInfo := Some(
       ScmInfo(
         browseUrl = url("https://github.com/pjfanning/pekko-serialization-fory.git"),
@@ -47,6 +42,12 @@ lazy val root = (project in file("."))
       )
     )
   )
+
+ThisBuild / publishTo := {
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
+}
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches :=
