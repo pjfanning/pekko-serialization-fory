@@ -137,7 +137,7 @@ import pekko.util.Helpers.toRootLowerCase
 }
 
 /**
- * INTERNAL API: Base class for Jackson serializers.
+ * INTERNAL API:
  *
  * Configuration in `pekko.serialization.fory` section.
  *
@@ -161,7 +161,7 @@ import pekko.util.Helpers.toRootLowerCase
     threadSafeFory
   }
 
-  private val log = Logging.withMarker(system, classOf[JacksonSerializer])
+  private val log = Logging.withMarker(system, classOf[ForySerializer])
   private val conf = JacksonObjectMapperProvider.configForBinding(bindingName, system.settings.config)
   private val isDebugEnabled = conf.getBoolean("verbose-debug-logging") && log.isDebugEnabled
   private final val BufferSize = 1024 * 4
@@ -193,7 +193,7 @@ import pekko.util.Helpers.toRootLowerCase
         case Success(c) => Some(c)
         case Failure(_) =>
           throw new IllegalArgumentException(
-            s"Cannot find deserialization-type [$className] for Jackson serializer [$bindingName]")
+            s"Cannot find deserialization-type [$className] for Fory serializer [$bindingName]")
       }
   }
 
@@ -209,7 +209,7 @@ import pekko.util.Helpers.toRootLowerCase
       bindings match {
         case Nil =>
           throw new IllegalArgumentException(
-            s"Jackson serializer [$bindingName] with type-in-manifest disabled must either declare" +
+            s"Fory serializer [$bindingName] with type-in-manifest disabled must either declare" +
             " a deserialization-type or have exactly one binding configured, but none were configured")
 
         case Seq((clazz, _)) =>
@@ -217,7 +217,7 @@ import pekko.util.Helpers.toRootLowerCase
 
         case multiple =>
           throw new IllegalArgumentException(
-            s"Jackson serializer [$bindingName] with type-in-manifest disabled must either declare" +
+            s"Fory serializer [$bindingName] with type-in-manifest disabled must either declare" +
             " a deserialization-type or have exactly one binding configured, but multiple bindings" +
             s" were configured [${multiple.mkString(", ")}]")
       }
@@ -385,7 +385,7 @@ import pekko.util.Helpers.toRootLowerCase
    * but still used for deserialization (e.g. rolling update with serialization changes) it can
    * be allowed by specifying in `allowed-class-prefix`.
    *
-   * That is also possible when changing a binding from a JacksonSerializer to another serializer (e.g. protobuf)
+   * That is also possible when changing a binding from a ForySerializer to another serializer (e.g. protobuf)
    * and still bind with the same class (interface).
    */
   private def isInAllowList(clazz: Class[_]): Boolean = {
@@ -423,7 +423,7 @@ import pekko.util.Helpers.toRootLowerCase
           case NonFatal(_) => true // not bound
         }
 
-      JacksonSerializer.disallowedSerializationBindings.foreach { clazz =>
+      ForySerializer.disallowedSerializationBindings.foreach { clazz =>
         if (!isBindingOk(clazz)) {
           val warnMsg = "For security reasons it's not allowed to bind open-ended interfaces like " +
             s"[${clazz.getName}] to [${getClass.getName}]. " +
