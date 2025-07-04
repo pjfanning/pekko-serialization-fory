@@ -319,7 +319,7 @@ import pekko.util.Helpers.toRootLowerCase
 
       val decompressedBytes = decompress(bytes)
 
-      val result = fory.deserialize(bytes)
+      val result = fory.deserialize(bytes, clazz)
 
       logFromBinaryDuration(bytes, decompressedBytes, startTime, clazz)
 
