@@ -20,7 +20,6 @@ import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
-import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator
 import net.jpountz.lz4.LZ4Factory
 import org.apache.fory.Fory
 import org.apache.fory.config.Language
@@ -38,23 +37,15 @@ import pekko.util.Helpers.toRootLowerCase
  */
 @InternalApi private[fory] object ForySerializer {
 
-  /**
-   * Using the deny list from Jackson databind of class names that shouldn't be allowed.
-   * Not nice to depend on implementation details of Jackson, but good to use the same
-   * list to automatically have the list updated when new classes are added in Jackson.
-   */
-  class GadgetClassDenyList extends SubTypeValidator {
-
-    private def defaultNoDeserClassNames: java.util.Set[String] =
-      SubTypeValidator.DEFAULT_NO_DESER_CLASS_NAMES // it's has protected visibility
+  //TODO extra deny list based on pekko-serialization-fory configuration
+  //and the hardcoded deny list in GadgetClassDenyList (pekko-serialization-jackson)
+  class GadgetClassDenyList {
 
     private val prefixSpring: String = "org.springframework."
     private val prefixC3P0: String = "com.mchange.v2.c3p0."
 
     def isAllowedClassName(className: String): Boolean = {
-      if (defaultNoDeserClassNames.contains(className))
-        false
-      else if (className.startsWith(prefixC3P0) && className.endsWith("DataSource"))
+      if (className.startsWith(prefixC3P0) && className.endsWith("DataSource"))
         false
       else
         true
@@ -189,10 +180,10 @@ import pekko.util.Helpers.toRootLowerCase
           """"off" or "gzip"""")
     }
   }
-  private val denyList: GadgetClassDenyList = new GadgetClassDenyList
   private val allowedClassPrefix = {
     conf.getStringList("allowed-class-prefix").asScala.toVector
   }
+  private val denyList: GadgetClassDenyList = new GadgetClassDenyList
   private val typeInManifest: Boolean = conf.getBoolean("type-in-manifest")
   // Calculated eagerly so as to fail fast
   private val configuredDeserializationType: Option[Class[_ <: AnyRef]] = conf.getString("deserialization-type") match {

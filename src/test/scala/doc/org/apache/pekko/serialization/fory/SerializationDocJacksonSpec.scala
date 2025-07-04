@@ -41,7 +41,7 @@ trait MySerializable
 final case class Message(name: String, nr: Int) extends MySerializable
 //#marker-interface
 
-object SerializationDocSpec {
+object SerializationDocJacksonSpec {
   val config = """
     #//#serialization-bindings
     pekko.actor {
@@ -203,10 +203,10 @@ object SerializationDocSpec {
 
 }
 
-class SerializationDocSpec
+class SerializationDocJacksonSpec
     extends TestKit(
       ActorSystem(
-        "SerializationDocSpec",
+        "SerializationDocJacksonSpec",
         ConfigFactory.parseString(s"""
     pekko.serialization.fory.migrations {
         # migrations for Java classes
@@ -252,13 +252,13 @@ class SerializationDocSpec
     serialization.serializerFor(obj.getClass).asInstanceOf[SerializerWithStringManifest]
 
   "serialize trait + case classes" in {
-    import doc.org.apache.pekko.serialization.fory.SerializationDocSpec.Polymorphism._
+    import doc.org.apache.pekko.serialization.fory.SerializationDocJacksonSpec.Polymorphism._
     verifySerialization(Zoo(Lion("Simba"))) should ===(Zoo(Lion("Simba")))
     verifySerialization(Zoo(Elephant("Dumbo", 1))) should ===(Zoo(Elephant("Dumbo", 1)))
   }
 
   "serialize trait + case classes + case object" in {
-    import doc.org.apache.pekko.serialization.fory.SerializationDocSpec.PolymorphismMixedClassObject._
+    import doc.org.apache.pekko.serialization.fory.SerializationDocJacksonSpec.PolymorphismMixedClassObject._
     verifySerialization(Zoo(Lion("Simba"))) should ===(Zoo(Lion("Simba")))
     verifySerialization(Zoo(Elephant("Dumbo", 1))) should ===(Zoo(Elephant("Dumbo", 1)))
     verifySerialization(Zoo(Unicorn)) should ===(Zoo(Unicorn))
