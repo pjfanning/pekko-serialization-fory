@@ -17,25 +17,25 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, NotSerializableExce
 import java.nio.ByteBuffer
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory
 import net.jpountz.lz4.LZ4Factory
+import org.apache.fory.Fory
+import org.apache.fory.serializer.scala.ScalaSerializers
 import org.apache.pekko
-import org.apache.pekko.serialization.fory.PekkoAccessUtil
 import pekko.actor.ExtendedActorSystem
 import pekko.annotation.InternalApi
 import pekko.event.Logging
 import pekko.serialization.{SerializationExtension, SerializerWithStringManifest}
+import pekko.serialization.fory.PekkoAccessUtil
 import pekko.util.Helpers.toRootLowerCase
 
 /**
  * INTERNAL API
  */
-@InternalApi private[fory] object JacksonSerializer {
+@InternalApi private[fory] object ForySerializer {
 
   /**
    * Using the deny list from Jackson databind of class names that shouldn't be allowed.
@@ -137,46 +137,35 @@ import pekko.util.Helpers.toRootLowerCase
 
 }
 
-/**
- * INTERNAL API: only public by configuration
- *
- * Pekko serializer for Jackson with JSON.
- */
-@InternalApi private[fory] final class JacksonJsonSerializer(system: ExtendedActorSystem, bindingName: String)
-    extends JacksonSerializer(
-      system,
-      bindingName: String,
-      JacksonObjectMapperProvider(system).getOrCreate(bindingName, None))
-
-/**
- * INTERNAL API: only public by configuration
- *
- * Pekko serializer for Jackson with CBOR.
- */
-@InternalApi private[fory] final class JacksonCborSerializer(system: ExtendedActorSystem, bindingName: String)
-    extends JacksonSerializer(
-      system,
-      bindingName,
-      JacksonObjectMapperProvider(system).getOrCreate(bindingName, Some(new CBORFactory)))
+@InternalApi object Compression {
+  sealed trait Algorithm
+  object Off extends Algorithm
+  final case class GZip(largerThan: Long) extends Algorithm
+  final case class LZ4(largerThan: Long) extends Algorithm
+}
 
 /**
  * INTERNAL API: Base class for Jackson serializers.
  *
  * Configuration in `pekko.serialization.fory` section.
- * It will load Jackson modules defined in configuration `jackson-modules`.
  *
  * It will compress the payload if the compression `algorithm` is enabled and the the
  * payload is larger than the configured `compress-larger-than` value.
  */
-@InternalApi private[fory] abstract class JacksonSerializer(
+@InternalApi private[fory] final class ForySerializer(
     val system: ExtendedActorSystem,
-    val bindingName: String,
-    val objectMapper: ObjectMapper)
+    val bindingName: String)
     extends SerializerWithStringManifest {
-  import JacksonSerializer._
+  import ForySerializer._
 
-  // TODO issue #27107: it should be possible to implement ByteBufferSerializer as well, using Jackson's
-  //      ByteBufferBackedOutputStream/ByteBufferBackedInputStream
+  private lazy val fory = {
+    val threadSafeFory = Fory.builder()
+        .withScalaOptimizationEnabled(true)
+        .requireClassRegistration(false) // TODO remove this
+        .buildThreadLocalFory()
+    ScalaSerializers.registerSerializers(threadSafeFory)
+    threadSafeFory
+  }
 
   private val log = Logging.withMarker(system, classOf[JacksonSerializer])
   private val conf = JacksonObjectMapperProvider.configForBinding(bindingName, system.settings.config)
@@ -279,7 +268,7 @@ import pekko.util.Helpers.toRootLowerCase
   override def toBinary(obj: AnyRef): Array[Byte] = {
     checkAllowedSerializationBindings()
     val startTime = if (isDebugEnabled) System.nanoTime else 0L
-    val bytes = objectMapper.writeValueAsBytes(obj)
+    val bytes = fory.serialize(obj)
     val result = compress(bytes)
 
     logToBinaryDuration(obj, startTime, bytes, result)
@@ -287,7 +276,7 @@ import pekko.util.Helpers.toRootLowerCase
     result
   }
 
-  private def logToBinaryDuration(obj: AnyRef, startTime: Long, bytes: Array[Byte], result: Array[Byte]) = {
+  private def logToBinaryDuration(obj: AnyRef, startTime: Long, bytes: Array[Byte], result: Array[Byte]): Unit = {
     if (isDebugEnabled) {
       val durationMicros = (System.nanoTime - startTime) / 1000
       if (bytes.length == result.length)
@@ -360,17 +349,24 @@ import pekko.util.Helpers.toRootLowerCase
 
       val result = migration match {
         case Some(transformer) if fromVersion < transformer.currentVersion =>
+          ???
+          /*
           val jsonTree = objectMapper.readTree(decompressedBytes)
           val newJsonTree = transformer.transform(fromVersion, jsonTree)
           objectMapper.treeToValue(newJsonTree, clazz)
+           */
         case Some(transformer) if fromVersion == transformer.currentVersion =>
-          objectMapper.readValue(decompressedBytes, clazz)
+          ???
+          //objectMapper.readValue(decompressedBytes, clazz)
         case Some(transformer) if fromVersion <= transformer.supportedForwardVersion =>
+          ???
+          /*
           val jsonTree = objectMapper.readTree(decompressedBytes)
           val newJsonTree = transformer.transform(fromVersion, jsonTree)
           objectMapper.treeToValue(newJsonTree, clazz)
+          */
         case _ =>
-          objectMapper.readValue(decompressedBytes, clazz)
+          fory.deserialize(bytes)
       }
 
       logFromBinaryDuration(bytes, decompressedBytes, startTime, clazz)
@@ -384,7 +380,7 @@ import pekko.util.Helpers.toRootLowerCase
       bytes: Array[Byte],
       decompressBytes: Array[Byte],
       startTime: Long,
-      clazz: Class[_ <: AnyRef]) = {
+      clazz: Class[_ <: AnyRef]): Unit = {
     if (isDebugEnabled) {
       val durationMicros = (System.nanoTime - startTime) / 1000
       if (bytes.length == decompressBytes.length)
@@ -404,7 +400,7 @@ import pekko.util.Helpers.toRootLowerCase
   }
 
   private def isCaseObject(className: String): Boolean =
-    className.length > 0 && className.charAt(className.length - 1) == '$'
+    !className.isEmpty && className.charAt(className.length - 1) == '$'
 
   private def checkAllowedClassName(className: String): Unit = {
     if (!denyList.isAllowedClassName(className)) {
