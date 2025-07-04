@@ -389,16 +389,16 @@ import pekko.util.Helpers.toRootLowerCase
    * and still bind with the same class (interface).
    */
   private def isInAllowList(clazz: Class[_]): Boolean = {
-    isBoundToJacksonSerializer(clazz) || hasAllowedClassPrefix(clazz.getName)
+    isBoundToForySerializer(clazz) || hasAllowedClassPrefix(clazz.getName)
   }
 
-  private def isBoundToJacksonSerializer(clazz: Class[_]): Boolean = {
+  private def isBoundToForySerializer(clazz: Class[_]): Boolean = {
     try {
       // The reason for using isInstanceOf rather than `eq this` is to allow change of
-      // serializer within the Jackson family, but we don't trust other serializers
+      // serializer within the Fory family, but we don't trust other serializers
       // because they might be bound to open-ended interfaces like java.io.Serializable.
       val boundSerializer = serialization.serializerFor(clazz)
-      boundSerializer.isInstanceOf[JacksonSerializer]
+      boundSerializer.isInstanceOf[ForySerializer]
     } catch {
       case NonFatal(_) => false // not bound
     }

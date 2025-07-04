@@ -33,7 +33,7 @@ object SerializationDocSpec {
 object Polymorphism {
 
   // #polymorphism
-  final case class Zoo(primaryAttraction: Animal) extends Serializable
+  final case class Zoo(primaryAttraction: Animal) extends MySerializable
 
   sealed trait Animal
 
