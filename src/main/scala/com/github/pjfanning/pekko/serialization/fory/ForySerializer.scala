@@ -23,6 +23,7 @@ import scala.util.control.NonFatal
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator
 import net.jpountz.lz4.LZ4Factory
 import org.apache.fory.Fory
+import org.apache.fory.config.Language
 import org.apache.fory.serializer.scala.ScalaSerializers
 import org.apache.pekko
 import pekko.actor.ExtendedActorSystem
@@ -160,9 +161,11 @@ import pekko.util.Helpers.toRootLowerCase
 
   private lazy val fory = {
     val threadSafeFory = Fory.builder()
-        .withScalaOptimizationEnabled(true)
-        .requireClassRegistration(false) // TODO remove this
-        .buildThreadLocalFory()
+      .withLanguage(Language.JAVA)
+      .withRefTracking(true)
+      .withScalaOptimizationEnabled(true)
+      .requireClassRegistration(false) // TODO remove this
+      .buildThreadLocalFory()
     ScalaSerializers.registerSerializers(threadSafeFory)
     threadSafeFory
   }
