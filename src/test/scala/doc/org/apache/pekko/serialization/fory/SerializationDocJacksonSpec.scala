@@ -237,10 +237,7 @@ class SerializationDocJacksonSpec
   }
 
   "EventMigration doc sample Java classes" must {
-    import jdoc.org.apache.pekko.serialization.fory.v1.OrderAdded
-    import jdoc.org.apache.pekko.serialization.fory.v2a.Customer
     import jdoc.org.apache.pekko.serialization.fory.v2a.ItemAdded
-    import jdoc.org.apache.pekko.serialization.fory.v2a.OrderPlaced
 
     "test add optional field" in {
       val event1 =
@@ -271,10 +268,7 @@ class SerializationDocJacksonSpec
   }
 
   "EventMigration doc sample Scala classes" must {
-    import doc.org.apache.pekko.serialization.fory.v1.OrderAdded
-    import doc.org.apache.pekko.serialization.fory.v2a.Customer
     import doc.org.apache.pekko.serialization.fory.v2a.ItemAdded
-    import doc.org.apache.pekko.serialization.fory.v2a.OrderPlaced
 
     "test add optional field" in {
       val event1 =
