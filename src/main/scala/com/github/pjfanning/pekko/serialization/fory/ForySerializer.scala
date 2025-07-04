@@ -186,13 +186,6 @@ import pekko.util.Helpers.toRootLowerCase
           """"off" or "gzip"""")
     }
   }
-  private val migrations: Map[String, JacksonMigration] = {
-    conf.getConfig("migrations").root.unwrapped.asScala.toMap.map {
-      case (k, v) =>
-        val transformer = system.dynamicAccess.createInstanceFor[JacksonMigration](v.toString, Nil).get
-        k -> transformer
-    }
-  }
   private val denyList: GadgetClassDenyList = new GadgetClassDenyList
   private val allowedClassPrefix = {
     conf.getStringList("allowed-class-prefix").asScala.toVector
@@ -249,19 +242,12 @@ import pekko.util.Helpers.toRootLowerCase
   override def manifest(obj: AnyRef): String = {
     checkAllowedSerializationBindings()
     deserializationType match {
-      case Some(clazz) =>
-        migrations.get(clazz.getName) match {
-          case Some(transformer) => "#" + transformer.currentVersion
-          case None              => ""
-        }
+      case Some(_) => ""
       case None =>
         val className = obj.getClass.getName
         checkAllowedClassName(className)
         checkAllowedClass(obj.getClass)
-        migrations.get(className) match {
-          case Some(transformer) => className + "#" + transformer.currentVersion
-          case None              => className
-        }
+        className
     }
   }
 
@@ -302,22 +288,8 @@ import pekko.util.Helpers.toRootLowerCase
     val (fromVersion, manifestClassName) = parseManifest(manifest)
     if (typeInManifest) checkAllowedClassName(manifestClassName)
 
-    val migration = migrations.get(deserializationType.fold(manifestClassName)(_.getName))
-
-    val className = migration match {
-      case Some(transformer) if fromVersion < transformer.currentVersion =>
-        transformer.transformClassName(fromVersion, manifestClassName)
-      case Some(transformer) if fromVersion == transformer.currentVersion =>
-        manifestClassName
-      case Some(transformer) if fromVersion <= transformer.supportedForwardVersion =>
-        transformer.transformClassName(fromVersion, manifestClassName)
-      case Some(transformer) if fromVersion > transformer.supportedForwardVersion =>
-        throw new IllegalStateException(
-          s"Migration version ${transformer.supportedForwardVersion} is " +
-          s"behind version $fromVersion of deserialized type [$manifestClassName]")
-      case _ =>
-        manifestClassName
-    }
+    //TODO remove the 2nd variable
+    val className = manifestClassName
 
     if (typeInManifest && (className ne manifestClassName))
       checkAllowedClassName(className)
@@ -347,27 +319,7 @@ import pekko.util.Helpers.toRootLowerCase
 
       val decompressedBytes = decompress(bytes)
 
-      val result = migration match {
-        case Some(transformer) if fromVersion < transformer.currentVersion =>
-          ???
-          /*
-          val jsonTree = objectMapper.readTree(decompressedBytes)
-          val newJsonTree = transformer.transform(fromVersion, jsonTree)
-          objectMapper.treeToValue(newJsonTree, clazz)
-           */
-        case Some(transformer) if fromVersion == transformer.currentVersion =>
-          ???
-          //objectMapper.readValue(decompressedBytes, clazz)
-        case Some(transformer) if fromVersion <= transformer.supportedForwardVersion =>
-          ???
-          /*
-          val jsonTree = objectMapper.readTree(decompressedBytes)
-          val newJsonTree = transformer.transform(fromVersion, jsonTree)
-          objectMapper.treeToValue(newJsonTree, clazz)
-          */
-        case _ =>
-          fory.deserialize(bytes)
-      }
+      val result = fory.deserialize(bytes)
 
       logFromBinaryDuration(bytes, decompressedBytes, startTime, clazz)
 

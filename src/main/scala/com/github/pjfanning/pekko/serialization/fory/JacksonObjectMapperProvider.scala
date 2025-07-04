@@ -47,7 +47,7 @@ object JacksonObjectMapperProvider extends ExtensionId[JacksonObjectMapperProvid
    * The configuration for a given `bindingName`.
    */
   def configForBinding(bindingName: String, systemConfig: Config): Config = {
-    val basePath = "pekko.serialization.jackson216"
+    val basePath = "pekko.serialization.fory"
     val baseConf = systemConfig.getConfig(basePath)
     if (systemConfig.hasPath(s"$basePath.$bindingName"))
       systemConfig.getConfig(s"$basePath.$bindingName").withFallback(baseConf)
