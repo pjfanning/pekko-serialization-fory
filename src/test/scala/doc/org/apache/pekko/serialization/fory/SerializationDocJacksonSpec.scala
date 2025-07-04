@@ -43,22 +43,6 @@ object SerializationDocJacksonSpec {
     #//#serialization-bindings
   """
 
-  val configMigration = """
-    #//#migrations-conf
-    pekko.serialization.fory.migrations {
-      "com.myservice.event.ItemAdded" = "com.myservice.event.ItemAddedMigration"
-    }
-    #//#migrations-conf
-  """
-
-  val configMigrationRenamClass = """
-    #//#migrations-conf-rename
-    pekko.serialization.fory.migrations {
-      "com.myservice.event.OrderAdded" = "com.myservice.event.OrderPlacedMigration"
-    }
-    #//#migrations-conf-rename
-  """
-
   val configSpecific = """
     #//#specific-config
     pekko.serialization.fory.jackson-json {
@@ -199,19 +183,6 @@ class SerializationDocJacksonSpec
       ActorSystem(
         "SerializationDocJacksonSpec",
         ConfigFactory.parseString(s"""
-    pekko.serialization.fory.migrations {
-        # migrations for Java classes
-        "jdoc.org.apache.pekko.serialization.fory.v2b.ItemAdded" = "jdoc.org.apache.pekko.serialization.fory.v2b.ItemAddedMigration"
-        "jdoc.org.apache.pekko.serialization.fory.v2c.ItemAdded" = "jdoc.org.apache.pekko.serialization.fory.v2c.ItemAddedMigration"
-        "jdoc.org.apache.pekko.serialization.fory.v2a.Customer" = "jdoc.org.apache.pekko.serialization.fory.v2a.CustomerMigration"
-        "jdoc.org.apache.pekko.serialization.fory.v1.OrderAdded" = "jdoc.org.apache.pekko.serialization.fory.v2a.OrderPlacedMigration"
-
-        # migrations for Scala classes
-        "doc.org.apache.pekko.serialization.fory.v2b.ItemAdded" = "doc.org.apache.pekko.serialization.fory.v2b.ItemAddedMigration"
-        "doc.org.apache.pekko.serialization.fory.v2c.ItemAdded" = "doc.org.apache.pekko.serialization.fory.v2c.ItemAddedMigration"
-        "doc.org.apache.pekko.serialization.fory.v2a.Customer" = "doc.org.apache.pekko.serialization.fory.v2a.CustomerMigration"
-        "doc.org.apache.pekko.serialization.fory.v1.OrderAdded" = "doc.org.apache.pekko.serialization.fory.v2a.OrderPlacedMigration"
-    }
     pekko.actor {
       allow-java-serialization = off
       serialization-bindings {
@@ -297,39 +268,6 @@ class SerializationDocJacksonSpec
 
       verifySerialization(new jdoc.org.apache.pekko.serialization.fory.v2b.ItemAdded("123", "ab123", 2, 0.1))
     }
-
-    "test rename field" in {
-      val event1 =
-        new jdoc.org.apache.pekko.serialization.fory.v1.ItemAdded("123", "ab123", 2)
-      val serializer = serializerFor(event1)
-      val blob = serializer.toBinary(event1)
-      val event2 = serializer
-        .fromBinary(blob, classOf[jdoc.org.apache.pekko.serialization.fory.v2c.ItemAdded].getName)
-        .asInstanceOf[jdoc.org.apache.pekko.serialization.fory.v2c.ItemAdded]
-      event2.itemId should ===(event1.productId)
-      event2.quantity should ===(event1.quantity)
-    }
-
-    "test structural changes" in {
-      val cust1 =
-        new jdoc.org.apache.pekko.serialization.fory.v1.Customer("A", "B", "C", "D", "E")
-      val serializer = serializerFor(cust1)
-      val blob = serializer.toBinary(cust1)
-      val cust2 = serializer.fromBinary(blob, classOf[Customer].getName).asInstanceOf[Customer]
-      cust2.name should ===(cust1.name)
-      cust2.shippingAddress.street should ===(cust1.street)
-      cust2.shippingAddress.city should ===(cust1.city)
-      cust2.shippingAddress.zipCode should ===(cust1.zipCode)
-      cust2.shippingAddress.country should ===(cust1.country)
-    }
-
-    "test rename class" in {
-      val order1 = new OrderAdded("1234")
-      val serializer = serializerFor(order1)
-      val blob = serializer.toBinary(order1)
-      val order2 = serializer.fromBinary(blob, classOf[OrderAdded].getName).asInstanceOf[OrderPlaced]
-      order2.shoppingCartId should ===(order1.shoppingCartId)
-    }
   }
 
   "EventMigration doc sample Scala classes" must {
@@ -363,39 +301,6 @@ class SerializationDocJacksonSpec
       event2.discount should be(0.0 +- 0.000001)
 
       verifySerialization(doc.org.apache.pekko.serialization.fory.v2b.ItemAdded("123", "ab123", 2, 0.1))
-    }
-
-    "test rename field" in {
-      val event1 =
-        doc.org.apache.pekko.serialization.fory.v1.ItemAdded("123", "ab123", 2)
-      val serializer = serializerFor(event1)
-      val blob = serializer.toBinary(event1)
-      val event2 = serializer
-        .fromBinary(blob, classOf[doc.org.apache.pekko.serialization.fory.v2c.ItemAdded].getName)
-        .asInstanceOf[doc.org.apache.pekko.serialization.fory.v2c.ItemAdded]
-      event2.itemId should ===(event1.productId)
-      event2.quantity should ===(event1.quantity)
-    }
-
-    "test structural changes" in {
-      val cust1 =
-        doc.org.apache.pekko.serialization.fory.v1.Customer("A", "B", "C", "D", "E")
-      val serializer = serializerFor(cust1)
-      val blob = serializer.toBinary(cust1)
-      val cust2 = serializer.fromBinary(blob, classOf[Customer].getName).asInstanceOf[Customer]
-      cust2.name should ===(cust1.name)
-      cust2.shippingAddress.street should ===(cust1.street)
-      cust2.shippingAddress.city should ===(cust1.city)
-      cust2.shippingAddress.zipCode should ===(cust1.zipCode)
-      cust2.shippingAddress.country should ===(cust1.country)
-    }
-
-    "test rename class" in {
-      val order1 = OrderAdded("1234")
-      val serializer = serializerFor(order1)
-      val blob = serializer.toBinary(order1)
-      val order2 = serializer.fromBinary(blob, classOf[OrderAdded].getName).asInstanceOf[OrderPlaced]
-      order2.shoppingCartId should ===(order1.shoppingCartId)
     }
   }
 
