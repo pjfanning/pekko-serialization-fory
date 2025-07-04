@@ -36,9 +36,9 @@ import org.scalatest.wordspec.AnyWordSpecLike
 /**
  * Marker interface for messages, events and snapshots that are serialized with Jackson.
  */
-trait MySerializable
+trait JSerializable
 
-final case class Message(name: String, nr: Int) extends MySerializable
+final case class JMessage(name: String, nr: Int) extends JSerializable
 //#marker-interface
 
 object SerializationDocJacksonSpec {
@@ -46,7 +46,7 @@ object SerializationDocJacksonSpec {
     #//#serialization-bindings
     pekko.actor {
       serialization-bindings {
-        "com.myservice.MySerializable" = jackson-json
+        "com.myservice.JSerializable" = jackson-json
       }
     }
     #//#serialization-bindings
@@ -139,10 +139,10 @@ object SerializationDocJacksonSpec {
     #//#manifestless
   """
 
-  object Polymorphism {
+  object JPolymorphism {
 
     // #polymorphism
-    final case class Zoo(primaryAttraction: Animal) extends MySerializable
+    final case class Zoo(primaryAttraction: Animal) extends JSerializable
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes(
@@ -160,7 +160,7 @@ object SerializationDocJacksonSpec {
   object PolymorphismMixedClassObject {
 
     // #polymorphism-case-object
-    final case class Zoo(primaryAttraction: Animal) extends MySerializable
+    final case class Zoo(primaryAttraction: Animal) extends JSerializable
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes(
@@ -225,7 +225,7 @@ class SerializationDocJacksonSpec
       allow-java-serialization = off
       serialization-bindings {
         "${classOf[jdoc.org.apache.pekko.serialization.fory.MySerializable].getName}" = jackson-json
-        "${classOf[doc.org.apache.pekko.serialization.fory.MySerializable].getName}" = jackson-json
+        "${classOf[doc.org.apache.pekko.serialization.fory.JSerializable].getName}" = jackson-json
       }
     }
     """)))
@@ -252,7 +252,7 @@ class SerializationDocJacksonSpec
     serialization.serializerFor(obj.getClass).asInstanceOf[SerializerWithStringManifest]
 
   "serialize trait + case classes" in {
-    import doc.org.apache.pekko.serialization.fory.SerializationDocJacksonSpec.Polymorphism._
+    import doc.org.apache.pekko.serialization.fory.SerializationDocJacksonSpec.JPolymorphism._
     verifySerialization(Zoo(Lion("Simba"))) should ===(Zoo(Lion("Simba")))
     verifySerialization(Zoo(Elephant("Dumbo", 1))) should ===(Zoo(Elephant("Dumbo", 1)))
   }
