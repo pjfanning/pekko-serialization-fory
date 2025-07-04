@@ -162,7 +162,14 @@ import pekko.util.Helpers.toRootLowerCase
   }
 
   private val log = Logging.withMarker(system, classOf[ForySerializer])
-  private val conf = JacksonObjectMapperProvider.configForBinding(bindingName, system.settings.config)
+  private val conf = {
+    val baseConf = system.settings.config.getConfig("pekko.serialization.fory")
+    if (baseConf.hasPath(bindingName)) {
+      baseConf.getConfig(bindingName)
+    } else {
+      baseConf
+    }
+  }
   private val isDebugEnabled = conf.getBoolean("verbose-debug-logging") && log.isDebugEnabled
   private final val BufferSize = 1024 * 4
   private val compressionAlgorithm: Compression.Algorithm = {
