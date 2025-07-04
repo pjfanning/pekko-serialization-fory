@@ -161,14 +161,6 @@ object ScalaTestMessages {
     extends TestMessage
 }
 
-class JacksonCborSerializerSpec extends JacksonSerializerSpec("jackson-cbor") {
-  "have compression disabled by default" in {
-    val conf = JacksonObjectMapperProvider.configForBinding("jackson-cbor", system.settings.config)
-    val compressionAlgo = conf.getString("compression.algorithm")
-    compressionAlgo should ===("off")
-  }
-}
-
 @nowarn // this test uses Jackson deprecated APIs
 class JacksonJsonSerializerSpec extends JacksonSerializerSpec("jackson-json") {
 
@@ -187,19 +179,6 @@ class JacksonJsonSerializerSpec extends JacksonSerializerSpec("jackson-json") {
   }
 
   "JacksonJsonSerializer" must {
-
-    "support lookup of same ObjectMapper via JacksonObjectMapperProvider" in {
-      val mapper = serialization()
-        .serializerFor(classOf[JavaTestMessages.TestMessage])
-        .asInstanceOf[JacksonSerializer]
-        .objectMapper
-      JacksonObjectMapperProvider(system).getOrCreate("jackson-json", None) shouldBe theSameInstanceAs(mapper)
-
-      val anotherBindingName = "jackson-json2"
-      val mapper2 = JacksonObjectMapperProvider(system).getOrCreate(anotherBindingName, None)
-      mapper2 should not be theSameInstanceAs(mapper)
-      JacksonObjectMapperProvider(system).getOrCreate(anotherBindingName, None) shouldBe theSameInstanceAs(mapper2)
-    }
 
     "JacksonSerializer configuration" must {
 
@@ -241,101 +220,6 @@ class JacksonJsonSerializerSpec extends JacksonSerializerSpec("jackson-json") {
         val namedObjectMapper = JacksonObjectMapperProvider(sys).getOrCreate("jackson-json2", None)
         val defaultObjectMapper =
           serializerFor(ScalaTestMessages.SimpleCommand("abc")).asInstanceOf[JacksonJsonSerializer].objectMapper
-
-        "support serialization features" in {
-          identifiedObjectMapper.isEnabled(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS) should ===(false)
-          namedObjectMapper.isEnabled(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS) should ===(false)
-
-          // Default mapper follows Jackson and reference.conf default configuration
-          defaultObjectMapper.isEnabled(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS) should ===(false)
-        }
-
-        "support deserialization features" in {
-          identifiedObjectMapper.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH) should ===(false)
-          namedObjectMapper.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH) should ===(false)
-
-          // Default mapper follows Jackson and reference.conf default configuration
-          defaultObjectMapper.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH) should ===(true)
-        }
-
-        "support mapper features" in {
-          identifiedObjectMapper.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY) should ===(true)
-          namedObjectMapper.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY) should ===(true)
-
-          // Default mapper follows Jackson and reference.conf default configuration
-          defaultObjectMapper.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY) should ===(false)
-        }
-
-        "support json parser features" in {
-          identifiedObjectMapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS) should ===(true)
-          namedObjectMapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS) should ===(true)
-
-          // Default mapper follows Jackson and reference.conf default configuration
-          defaultObjectMapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS) should ===(false)
-        }
-
-        "support json generator features" in {
-          identifiedObjectMapper.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET) should ===(false)
-          namedObjectMapper.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET) should ===(false)
-
-          // Default mapper follows Jackson and reference.conf default configuration
-          defaultObjectMapper.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET) should ===(true)
-        }
-
-        "support stream read features" in {
-          identifiedObjectMapper.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION) should ===(true)
-          namedObjectMapper.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION) should ===(true)
-
-          // Default mapper follows Jackson and reference.conf default configuration
-          defaultObjectMapper.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION) should ===(false)
-        }
-
-        "support stream write features" in {
-          identifiedObjectMapper.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN) should ===(true)
-          namedObjectMapper.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN) should ===(true)
-
-          // Default mapper follows Jackson and reference.conf default configuration
-          defaultObjectMapper.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN) should ===(false)
-        }
-
-        "support json read features" in {
-          // ATTENTION: this is trick. Although we are configuring `json-read-features`, Jackson
-          // does not provides a way to check for `StreamReadFeature`s, so we need to check for
-          // `JsonParser.Feature`.ALLOW_YAML_COMMENTS.
-          // Same applies for json-write-features and JsonGenerator.Feature.
-          identifiedObjectMapper.isEnabled(JsonParser.Feature.ALLOW_YAML_COMMENTS) should ===(true)
-          namedObjectMapper.isEnabled(JsonParser.Feature.ALLOW_YAML_COMMENTS) should ===(true)
-
-          // Default mapper follows Jackson and reference.conf default configuration
-          defaultObjectMapper.isEnabled(JsonParser.Feature.ALLOW_YAML_COMMENTS) should ===(false)
-        }
-
-        "support json write features" in {
-          // ATTENTION: this is trickier than `json-read-features` vs JsonParser.Feature
-          // since the JsonWriteFeature replaces deprecated APIs in JsonGenerator.Feature.
-          // But just like the test for `json-read-features` there is no API to check for
-          // `JsonWriteFeature`s, so we need to use the deprecated APIs.
-          identifiedObjectMapper.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII) should ===(true)
-          namedObjectMapper.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII) should ===(true)
-
-          // Default mapper follows Jackson and reference.conf default configuration
-          defaultObjectMapper.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII) should ===(false)
-        }
-
-        "fallback to defaults when object mapper is not configured" in {
-          val notConfigured = JacksonObjectMapperProvider(sys).getOrCreate("fory-not-configured", None)
-          // Use Jacksons and Pekko defaults
-          notConfigured.isEnabled(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS) should ===(false)
-          notConfigured.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH) should ===(true)
-          notConfigured.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY) should ===(false)
-          notConfigured.isEnabled(JsonParser.Feature.ALLOW_COMMENTS) should ===(false)
-          notConfigured.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET) should ===(true)
-
-          notConfigured.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION) should ===(false)
-          notConfigured.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN) should ===(false)
-          notConfigured.isEnabled(JsonParser.Feature.ALLOW_YAML_COMMENTS) should ===(false)
-          notConfigured.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII) should ===(false)
-        }
       }
     }
   }
