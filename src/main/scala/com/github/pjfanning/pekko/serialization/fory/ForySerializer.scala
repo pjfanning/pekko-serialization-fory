@@ -23,7 +23,6 @@ import scala.util.control.NonFatal
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator
 import net.jpountz.lz4.LZ4Factory
 import org.apache.fory.Fory
-import org.apache.fory.serializer.scala.ScalaSerializers
 import org.apache.pekko
 import pekko.actor.ExtendedActorSystem
 import pekko.annotation.InternalApi
@@ -158,14 +157,10 @@ import pekko.util.Helpers.toRootLowerCase
     extends SerializerWithStringManifest {
   import ForySerializer._
 
-  private lazy val fory = {
-    val threadSafeFory = Fory.builder()
+  private lazy val fory = Fory.builder()
         .withScalaOptimizationEnabled(true)
         .requireClassRegistration(false) // TODO remove this
         .buildThreadLocalFory()
-    ScalaSerializers.registerSerializers(threadSafeFory)
-    threadSafeFory
-  }
 
   private val log = Logging.withMarker(system, classOf[JacksonSerializer])
   private val conf = JacksonObjectMapperProvider.configForBinding(bindingName, system.settings.config)
