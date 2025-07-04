@@ -1,20 +1,22 @@
-val scala12Version = "2.12.19"
-val scala13Version = "2.13.13"
-val scala3Version = "3.3.3"
+val scala13Version = "2.13.16"
+val scala3Version = "3.3.6"
 ThisBuild / scalaVersion := scala13Version
-ThisBuild / crossScalaVersions := Seq(scala12Version, scala13Version, scala3Version)
+ThisBuild / crossScalaVersions := Seq(scala13Version, scala3Version)
 
 val pekkoVersion = "1.0.2"
+val foryVersion = "0.11.1"
 val jacksonVersion = "2.16.2"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "pekko-serialization-jackson216",
+    name := "pekko-serialization-fory",
     organization := "com.github.pjfanning",
     libraryDependencies ++= Seq(
       "org.apache.pekko" %% "pekko-actor" % pekkoVersion,
       "org.apache.pekko" %% "pekko-actor-typed" % pekkoVersion % Optional,
       "org.apache.pekko" %% "pekko-stream" % pekkoVersion % Optional,
+      "org.apache.fory" % "fory-core" % foryVersion,
+      "org.apache.fory" %% "fory-scala" % foryVersion,
       "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
       "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
       "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion,
@@ -29,9 +31,9 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % "1.2.13" % Test
     ),
     javacOptions += "-parameters",
-    licenses += ("Apache-2.0", new URL("https://github.com/pjfanning/pekko-serialization-jackson216/blob/main/LICENSE")),
+    licenses += ("Apache-2.0", new URL("https://github.com/pjfanning/pekko-serialization-fory/blob/main/LICENSE")),
     startYear := Some(2023),
-    homepage := Some(url("https://github.com/pjfanning/pekko-serialization-jackson216")),
+    homepage := Some(url("https://github.com/pjfanning/pekko-serialization-fory")),
     developers := Developer(
       "pekko-contributors",
       "Apache Pekko Contributors",
@@ -40,8 +42,8 @@ lazy val root = (project in file("."))
       Developer("pjfanning", "PJ Fanning", "", url("https://github.com/pjfanning")) :: Nil,
     scmInfo := Some(
       ScmInfo(
-        browseUrl = url("https://github.com/pjfanning/pekko-serialization-jackson216.git"),
-        connection = "scm:git:git@github.com:pjfanning/pekko-serialization-jackson216.git"
+        browseUrl = url("https://github.com/pjfanning/pekko-serialization-fory.git"),
+        connection = "scm:git:git@github.com:pjfanning/pekko-serialization-fory.git"
       )
     )
   )
