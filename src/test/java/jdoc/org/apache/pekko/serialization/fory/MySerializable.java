@@ -14,7 +14,7 @@
 package jdoc.org.apache.pekko.serialization.fory;
 
 // #marker-interface
-/** Marker interface for messages, events and snapshots that are serialized with Jackson. */
+/** Marker interface for messages, events and snapshots that are serialized with Fory. */
 public interface MySerializable {}
 
 class MyMessage implements MySerializable {
