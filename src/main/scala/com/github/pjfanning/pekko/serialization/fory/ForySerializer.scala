@@ -286,14 +286,8 @@ import pekko.util.Helpers.toRootLowerCase
     checkAllowedSerializationBindings()
     val startTime = if (isDebugEnabled) System.nanoTime else 0L
 
-    val (fromVersion, manifestClassName) = parseManifest(manifest)
-    if (typeInManifest) checkAllowedClassName(manifestClassName)
-
-    //TODO remove the 2nd variable
-    val className = manifestClassName
-
-    if (typeInManifest && (className ne manifestClassName))
-      checkAllowedClassName(className)
+    val (fromVersion, className) = parseManifest(manifest)
+    if (typeInManifest) checkAllowedClassName(className)
 
     if (isCaseObject(className)) {
       val result = system.dynamicAccess.getObjectFor[AnyRef](className) match {
