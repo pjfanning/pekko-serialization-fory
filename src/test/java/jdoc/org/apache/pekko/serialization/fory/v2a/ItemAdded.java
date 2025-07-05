@@ -13,7 +13,6 @@
 
 package jdoc.org.apache.pekko.serialization.fory.v2a;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import jdoc.org.apache.pekko.serialization.fory.MySerializable;
 
 import java.util.Optional;
@@ -26,7 +25,6 @@ public class ItemAdded implements MySerializable {
   public final Optional<Double> discount;
   public final String note;
 
-  @JsonCreator
   public ItemAdded(
       String shoppingCartId,
       String productId,

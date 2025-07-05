@@ -13,14 +13,12 @@
 
 package jdoc.org.apache.pekko.serialization.fory.v1;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import jdoc.org.apache.pekko.serialization.fory.MySerializable;
 
 // #rename-class
 public class OrderAdded implements MySerializable {
   public final String shoppingCartId;
 
-  @JsonCreator
   public OrderAdded(String shoppingCartId) {
     this.shoppingCartId = shoppingCartId;
   }

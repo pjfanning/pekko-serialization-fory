@@ -13,7 +13,6 @@
 
 package doc.org.apache.pekko.serialization.fory.v2a
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import jdoc.org.apache.pekko.serialization.fory.MySerializable
 
 // #add-optional
@@ -21,7 +20,6 @@ case class ItemAdded(shoppingCartId: String, productId: String, quantity: Int, d
     extends MySerializable {
 
   // alternative constructor because `note` should have default value "" when not defined in json
-  @JsonCreator
   def this(shoppingCartId: String, productId: String, quantity: Int, discount: Option[Double], note: Option[String]) =
     this(shoppingCartId, productId, quantity, discount, note.getOrElse(""))
 }
