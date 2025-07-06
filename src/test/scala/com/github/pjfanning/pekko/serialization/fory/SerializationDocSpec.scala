@@ -1,8 +1,9 @@
 package com.github.pjfanning.pekko.serialization.fory
 
+import com.github.pjfanning.pekko.serialization.fory.JavaTestMessages.ClassWithVisibility
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.serialization.{Serialization, SerializationExtension, SerializerWithStringManifest, Serializers}
+import org.apache.pekko.serialization.{Serialization, SerializationExtension, Serializers}
 import org.apache.pekko.testkit.TestKit
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
@@ -63,6 +64,7 @@ class SerializationDocSpec
       allow-java-serialization = off
       serialization-bindings {
         "${classOf[MySerializable].getName}" = fory
+        "${classOf[jdoc.org.apache.pekko.serialization.fory.MySerializable].getName}" = fory
       }
     }
     """)))
@@ -79,13 +81,18 @@ class SerializationDocSpec
   def verifySerialization(obj: AnyRef): AnyRef =
     SerializationDocSpec.verifySerialization(serialization, obj)
 
-  private def serializerFor(obj: Any): SerializerWithStringManifest =
-    serialization.serializerFor(obj.getClass).asInstanceOf[SerializerWithStringManifest]
-
   "serialize trait + case classes" in {
     import Polymorphism._
     verifySerialization(Zoo(Lion("Simba"))) should ===(Zoo(Lion("Simba")))
     verifySerialization(Zoo(Elephant("Dumbo", 1))) should ===(Zoo(Elephant("Dumbo", 1)))
+  }
+
+  "serialize java class" in {
+    val instance = new ClassWithVisibility
+    val deserialized = verifySerialization(instance)
+    deserialized shouldBe a[ClassWithVisibility]
+    val result = deserialized.asInstanceOf[ClassWithVisibility]
+    result shouldEqual instance
   }
 
 }

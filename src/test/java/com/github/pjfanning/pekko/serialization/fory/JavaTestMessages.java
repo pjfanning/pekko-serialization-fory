@@ -523,12 +523,25 @@ public interface JavaTestMessages {
   }
 
   // A class with non-public fields
-  final class ClassWithVisibility {
+  final class ClassWithVisibility implements MySerializable {
     public final String publicField = "1234";
     final String defaultField = "abcd";
     protected final String protectedField = "vwxyz";
     private final String privateField = "ABCD";
 
     public ClassWithVisibility() {}
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      ClassWithVisibility that = (ClassWithVisibility) o;
+
+      if (!publicField.equals(that.publicField)) return false;
+      if (!defaultField.equals(that.defaultField)) return false;
+      if (!protectedField.equals(that.protectedField)) return false;
+      return privateField.equals(that.privateField);
+    }
   }
 }
