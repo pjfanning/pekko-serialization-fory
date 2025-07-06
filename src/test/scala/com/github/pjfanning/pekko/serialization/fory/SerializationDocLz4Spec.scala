@@ -38,7 +38,7 @@ class SerializationDocLz4Spec
   def verifySerialization(obj: AnyRef): AnyRef =
     SerializationDocSpec.verifySerialization(serialization, obj)
 
-  "serialize trait + case classes" ignore {
+  "serialize trait + case classes" in {
     import Polymorphism._
     verifySerialization(Zoo(Lion("Simba"))) should ===(Zoo(Lion("Simba")))
     verifySerialization(Zoo(Elephant("Dumbo", 1))) should ===(Zoo(Elephant("Dumbo", 1)))
