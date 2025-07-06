@@ -13,7 +13,7 @@
 
 package doc.org.apache.pekko.serialization.fory.v2a
 
-import doc.org.apache.pekko.serialization.fory.MySerializable
+import com.github.pjfanning.pekko.serialization.fory.MySerializable
 
 // #structural
 case class Customer(name: String, shippingAddress: Address, billingAddress: Option[Address]) extends MySerializable

@@ -13,7 +13,7 @@
 
 package doc.org.apache.pekko.serialization.fory.v1
 
-import doc.org.apache.pekko.serialization.fory.MySerializable
+import com.github.pjfanning.pekko.serialization.fory.MySerializable
 
 // #add-optional
 // #forward-one-rename

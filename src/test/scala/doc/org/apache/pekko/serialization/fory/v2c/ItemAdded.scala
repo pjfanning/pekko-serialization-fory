@@ -13,7 +13,7 @@
 
 package doc.org.apache.pekko.serialization.fory.v2c
 
-import doc.org.apache.pekko.serialization.fory.MySerializable
+import com.github.pjfanning.pekko.serialization.fory.MySerializable
 
 // #rename
 case class ItemAdded(shoppingCartId: String, itemId: String, quantity: Int) extends MySerializable

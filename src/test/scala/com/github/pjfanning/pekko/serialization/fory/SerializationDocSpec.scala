@@ -1,4 +1,4 @@
-package doc.org.apache.pekko.serialization.fory
+package com.github.pjfanning.pekko.serialization.fory
 
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.actor.ActorSystem
@@ -18,6 +18,7 @@ final case class Message(name: String, nr: Int) extends MySerializable
 //#marker-interface
 
 object SerializationDocSpec {
+  /*
   val config =
     """
     #//#serialization-bindings
@@ -28,6 +29,16 @@ object SerializationDocSpec {
     }
     #//#serialization-bindings
   """
+   */
+
+  def verifySerialization(serialization: Serialization, obj: AnyRef): AnyRef = {
+    val serializer = serialization.serializerFor(obj.getClass)
+    val manifest = Serializers.manifestFor(serializer, obj)
+    val serializerId = serializer.identifier
+    val blob = serialization.serialize(obj).get
+    val deserialized = serialization.deserialize(blob, serializerId, manifest).get
+    deserialized
+  }
 }
 
 object Polymorphism {
@@ -51,8 +62,7 @@ class SerializationDocSpec
     pekko.actor {
       allow-java-serialization = off
       serialization-bindings {
-        "${classOf[jdoc.org.apache.pekko.serialization.fory.MySerializable].getName}" = fory
-        "${classOf[doc.org.apache.pekko.serialization.fory.MySerializable].getName}" = fory
+        "${classOf[MySerializable].getName}" = fory
       }
     }
     """)))
@@ -66,14 +76,8 @@ class SerializationDocSpec
     shutdown()
   }
 
-  def verifySerialization(obj: AnyRef): AnyRef = {
-    val serializer = serialization.serializerFor(obj.getClass)
-    val manifest = Serializers.manifestFor(serializer, obj)
-    val serializerId = serializer.identifier
-    val blob = serialization.serialize(obj).get
-    val deserialized = serialization.deserialize(blob, serializerId, manifest).get
-    deserialized
-  }
+  def verifySerialization(obj: AnyRef): AnyRef =
+    SerializationDocSpec.verifySerialization(serialization, obj)
 
   private def serializerFor(obj: Any): SerializerWithStringManifest =
     serialization.serializerFor(obj.getClass).asInstanceOf[SerializerWithStringManifest]
