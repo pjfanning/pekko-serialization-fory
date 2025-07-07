@@ -21,7 +21,7 @@ lazy val root = (project in file("."))
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       "ch.qos.logback" % "logback-classic" % "1.3.15" % Test
     ),
-    javacOptions += "-parameters",
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     licenses += ("Apache-2.0", new URL("https://github.com/pjfanning/pekko-serialization-fory/blob/main/LICENSE")),
     startYear := Some(2025),
     homepage := Some(url("https://github.com/pjfanning/pekko-serialization-fory")),
