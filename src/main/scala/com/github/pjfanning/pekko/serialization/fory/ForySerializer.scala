@@ -21,11 +21,11 @@ import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 import scala.util.control.NonFatal
 import net.jpountz.lz4.LZ4Factory
-import org.apache.fory.Fory
+import org.apache.fory.{Fory, ThreadLocalFory}
 import org.apache.fory.config.Language
 import org.apache.fory.serializer.scala.ScalaSerializers
 import org.apache.pekko
-import pekko.actor.ExtendedActorSystem
+import pekko.actor.{ActorRef, Address, ExtendedActorSystem}
 import pekko.annotation.InternalApi
 import pekko.event.Logging
 import pekko.serialization.{SerializationExtension, SerializerWithStringManifest}
@@ -150,16 +150,22 @@ import pekko.util.Helpers.toRootLowerCase
     extends SerializerWithStringManifest {
   import ForySerializer._
 
-  private lazy val fory = {
-    val threadSafeFory = Fory.builder()
+  private lazy val fory = new ThreadLocalFory(classLoader => {
+    val fory = Fory.builder()
       .withLanguage(Language.JAVA)
-      .withRefTracking(true)
+      .withClassLoader(classLoader)
+      .withRefTracking(true) // TODO make this configurable
       .withScalaOptimizationEnabled(true)
       .requireClassRegistration(false) // TODO remove this
-      .buildThreadLocalFory()
-    ScalaSerializers.registerSerializers(threadSafeFory)
-    threadSafeFory
-  }
+      .build()
+    ScalaSerializers.registerSerializers(fory)
+    fory.registerSerializer(classOf[ActorRef], new ActorRefSerializer(fory))
+    fory.registerSerializer(classOf[Address], new AddressSerializer(fory))
+    if (ClassCheck.typedActorSupported) {
+      fory.registerSerializer(ClassCheck.typedActorRefClass.get, new TypedActorRefSerializer(fory))
+    }
+    fory
+  })
 
   private val log = Logging.withMarker(system, classOf[ForySerializer])
   private val conf = {
