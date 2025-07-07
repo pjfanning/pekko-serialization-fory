@@ -1,13 +1,14 @@
 package com.github.pjfanning.pekko.serialization.fory.javadsl;
 
-import org.apache.fory.Fory;
+import java.util.function.Function;
 import scala.jdk.FunctionWrappers;
 
+import org.apache.fory.Fory;
 import org.apache.fory.config.ForyBuilder;
 
-import java.util.function.Function;
+public final class ForyInitializer {
 
-public class ForyInitializer {
+  private ForyInitializer() {}
 
   /**
    * Registers a modifier function for the <code>ForyBuilder</code> used to create the
