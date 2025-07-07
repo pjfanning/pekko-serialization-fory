@@ -164,6 +164,10 @@ import pekko.util.Helpers.toRootLowerCase
     if (ClassCheck.typedActorSupported) {
       fory.registerSerializer(ClassCheck.typedActorRefClass.get, new TypedActorRefSerializer(fory))
     }
+    if (ClassCheck.pekkoStreamSupported) {
+      fory.registerSerializer(ClassCheck.sourceRefClass.get, new SourceRefSerializer(fory))
+      fory.registerSerializer(ClassCheck.sinkRefClass.get, new SinkRefSerializer(fory))
+    }
     fory
   })
 
